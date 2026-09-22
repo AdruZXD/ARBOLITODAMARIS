@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Árbol de Amor y Corazones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 35%, #ffffff 0%, #fdf9f9 50%, #fceed2 100%);
+}
+
+body {
+  height: 100vh;
+  height: 100dvh;
+  font-size: 16px;
+  font-family: 'Poppins', Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+  position: relative;
+  user-select: none;
+}
+
+/* Pantalla de inicio para interacción de audio */
+#start-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.98), rgba(253,235,238,0.96));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  cursor: pointer;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+.intro-heart {
+  width: 70px;
+  height: 70px;
+  background-color: #ba181b;
+  transform: rotate(-45deg);
+  animation: heartPulse 1.2s infinite ease-in-out;
+  box-shadow: 0 0 25px rgba(186, 24, 27, 0.4);
+}
+
+.intro-heart::before,
+.intro-heart::after {
+  content: "";
+  width: 70px;
+  height: 70px;
+  background-color: #ba181b;
+  border-radius: 50%;
+  position: absolute;
+}
+
+.intro-heart::before {
+  top: -35px;
+  left: 0;
+}
+
+.intro-heart::after {
+  left: 35px;
+  top: 0;
+}
+
+@keyframes heartPulse {
+  0%, 100% { transform: rotate(-45deg) scale(0.9); }
+  50% { transform: rotate(-45deg) scale(1.1); }
+}
+
+.intro-text {
+  margin-top: 45px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #ba181b;
+  letter-spacing: 0.5px;
+  animation: pulseText 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes pulseText {
+  from { opacity: 0.7; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1.03); }
+}
+
+/* Contenedor de corazones que caen del árbol */
+#floating-objects {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.falling-heart {
+  position: absolute;
+  top: -35px;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+/* Árbol ilustrado */
+.tree-container {
+  width: min(580px, 48vw);
+  height: min(680px, 58vw);
+  position: absolute;
+  top: 50%;
+  right: 3%;
+  transform: translateY(-50%);
+  z-index: 2;
+  transition: transform 1s ease;
+}
+
+.tree-container svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* Balanceo suave de la copa */
+.sway-crown {
+  transform-origin: 250px 380px;
+  animation: gentleSway 5.5s ease-in-out infinite alternate;
+}
+
+@keyframes gentleSway {
+  0% { transform: rotate(-1deg); }
+  100% { transform: rotate(1deg); }
+}
+
+/* Tarjeta con los mensajes */
+.dedication-card {
+  position: absolute;
+  top: 50%;
+  left: 5%;
+  transform: translateY(-50%);
+  width: min(44vw, 540px);
+  min-width: 290px;
+  max-height: 80vh;
+  padding: 1.5em 1.7em;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(229, 56, 59, 0.22);
+  box-shadow: 0 10px 30px rgba(186, 24, 27, 0.1);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+}
+
+.typewriter-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: clamp(0.95rem, 1.4vw, 1.25rem);
+  line-height: 1.55;
+  color: #1a0b0d;
+  min-height: 130px;
+  white-space: pre-line;
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background-color: #ba181b;
+  vertical-align: sub;
+  animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.signature {
+  margin-top: 0.8em;
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+  color: #ba181b;
+  text-align: right;
+  transition: opacity 0.5s ease;
+}
+
+/* Botones de acción */
+.card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 1.1em;
+  align-items: center;
+}
+
+.action-btn {
+  background: linear-gradient(135deg, #e5383b, #ba181b);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 9px 18px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(186, 24, 27, 0.25);
+  transition: transform 0.2s, background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+/* ========================================================
+   ADAPTACIÓN PARA CELULARES
+   ======================================================== */
+@media (max-width: 768px) {
+  .tree-container {
+    width: 94vw;
+    height: 94vw;
+    max-height: 440px;
+    top: auto;
+    bottom: 2vh;
+    right: 50%;
+    transform: translateX(50%);
+  }
+
+  .dedication-card {
+    top: max(14px, calc(env(safe-area-inset-top) + 8px));
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92vw;
+    min-width: 0;
+    max-height: 42dvh;
+    padding: 0.9em 1.1em;
+  }
+
+  .typewriter-text {
+    font-size: clamp(0.82rem, 3.8vw, 0.98rem);
+    min-height: 90px;
+    line-height: 1.4;
+  }
+
+  .signature {
+    margin-top: 0.3em;
+    font-size: clamp(1.2rem, 5vw, 1.5rem);
+  }
+
+  .card-actions {
+    margin-top: 0.6em;
+    justify-content: center;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Pantalla de inicio para interacción de audio -->
+<div id="start-overlay">
+  <div class="intro-heart"></div>
+  <div class="intro-text">Toca para abrir 💌</div>
+</div>
+
+<div id="floating-objects"></div>
+
+<!-- Mensaje y tarjeta interactiva -->
+<div class="dedication-card">
+  <div class="typewriter-text">
+    <span id="text-display"></span><span class="typewriter-cursor"></span>
+  </div>
+  <div class="signature" id="signature">Con Mucho Cariño Bonita</div>
+  <div class="card-actions">
+    <button class="action-btn" id="next-btn">💌 Siguiente mensaje</button>
+  </div>
+</div>
+
+<!-- Árbol ilustrado con tronco continuo y pasto natural verde -->
+<div class="tree-container" id="tree-container">
+  <svg viewBox="0 0 500 620" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <!-- Base de corazón -->
+      <path id="h-leaf" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      
+      <!-- Gradiente acuarela para tronco y ramas -->
+      <linearGradient id="bark-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#220609"/>
+        <stop offset="35%" stop-color="#461318"/>
+        <stop offset="70%" stop-color="#340e13"/>
+        <stop offset="100%" stop-color="#160305"/>
+      </linearGradient>
+
+      <!-- Suelo acuarela natural en verdes -->
+      <radialGradient id="grass-wash" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="rgba(85, 139, 47, 0.45)"/>
+        <stop offset="45%" stop-color="rgba(124, 179, 66, 0.28)"/>
+        <stop offset="80%" stop-color="rgba(156, 204, 101, 0.12)"/>
+        <stop offset="100%" stop-color="rgba(255, 255, 255, 0)"/>
+      </radialGradient>
+    </defs>
+
+    <!-- Pasto verde y terreno con textura natural -->
+    <g id="ground">
+      <ellipse cx="250" cy="582" rx="210" ry="20" fill="url(#grass-wash)"/>
+      <path d="M85 586 Q250 568 415 588" stroke="#33691e" stroke-width="2" fill="none" opacity="0.5"/>
+      <path d="M120 590 Q260 576 380 592" stroke="#558b2f" stroke-width="1.8" fill="none" opacity="0.4"/>
+      
+      <!-- Briznas de pasto verde en acuarela viva alrededor del tronco -->
+      <g stroke="#2e7d32" stroke-width="1.8" stroke-linecap="round" opacity="0.85">
+        <path d="M220 585 Q212 568 206 558"/>
+        <path d="M224 586 Q219 572 214 564"/>
+        <path d="M228 586 Q223 574 219 568"/>
+        <path d="M234 587 Q228 576 224 570"/>
+        
+        <path d="M266 587 Q272 576 276 570"/>
+        <path d="M272 586 Q277 574 281 568"/>
+        <path d="M276 586 Q281 572 286 564"/>
+        <path d="M280 585 Q288 568 294 558"/>
+      </g>
+      
+      <g stroke="#388e3c" stroke-width="1.6" stroke-linecap="round" opacity="0.8">
+        <path d="M165 586 Q155 570 148 562"/>
+        <path d="M172 585 Q164 572 158 566"/>
+        <path d="M185 585 Q178 574 172 568"/>
+        <path d="M196 586 Q189 573 183 565"/>
+        <path d="M208 586 Q202 574 196 569"/>
+
+        <path d="M292 586 Q298 574 304 569"/>
+        <path d="M304 586 Q311 573 317 565"/>
+        <path d="M315 585 Q322 574 328 568"/>
+        <path d="M328 585 Q336 572 342 566"/>
+        <path d="M335 586 Q345 570 352 562"/>
+      </g>
+
+      <g stroke="#689f38" stroke-width="1.3" stroke-linecap="round" opacity="0.75">
+        <path d="M135 588 Q124 576 115 570"/>
+        <path d="M145 587 Q137 576 131 572"/>
+        <path d="M355 587 Q363 576 369 572"/>
+        <path d="M365 588 Q376 576 385 570"/>
+      </g>
+    </g>
+
+    <!-- Tronco continuo y unificado sin cortes -->
+    <g id="trunk">
+      <path d="M210 586 C232 575 240 560 244 530 C254 465 228 410 240 350 C246 310 252 270 248 235 C255 270 264 315 252 355 C240 415 264 470 256 530 C260 560 268 575 290 586 C262 578 238 578 210 586 Z" fill="url(#bark-grad)"/>
+
+      <!-- Ramas principales conectadas directamente -->
+      <path d="M244 350 C215 310 180 275 140 255 C175 268 210 298 240 335 Z" fill="url(#bark-grad)"/>
+      <path d="M190 285 C165 250 125 228 90 215 C125 224 160 242 184 274 Z" fill="url(#bark-grad)"/>
+      <path d="M155 262 C130 282 100 298 70 305 C98 295 125 282 148 262 Z" fill="url(#bark-grad)"/>
+      <path d="M125 230 C95 210 65 190 45 165 C68 185 98 202 120 220 Z" fill="url(#bark-grad)"/>
+
+      <path d="M250 340 C275 305 315 270 360 250 C322 266 288 292 256 330 Z" fill="url(#bark-grad)"/>
+      <path d="M305 280 C335 250 380 230 420 220 C385 226 342 245 302 270 Z" fill="url(#bark-grad)"/>
+      <path d="M340 262 C370 282 405 298 435 305 C408 295 375 282 345 262 Z" fill="url(#bark-grad)"/>
+      <path d="M375 230 C410 210 440 190 460 165 C435 185 402 202 380 220 Z" fill="url(#bark-grad)"/>
+
+      <path d="M246 255 C228 210 190 168 145 135 C185 162 218 198 244 240 Z" fill="url(#bark-grad)"/>
+      <path d="M198 175 C175 140 140 118 105 102 C135 116 168 135 190 162 Z" fill="url(#bark-grad)"/>
+      
+      <path d="M248 245 C270 205 305 168 355 135 C315 162 284 195 256 235 Z" fill="url(#bark-grad)"/>
+      <path d="M298 175 C325 140 360 118 395 105 C365 116 332 135 308 162 Z" fill="url(#bark-grad)"/>
+
+      <path d="M247 240 C244 185 232 140 218 95 C228 135 238 180 248 225 Z" fill="url(#bark-grad)"/>
+      <path d="M248 225 C254 180 264 135 278 95 C268 135 258 180 249 240 Z" fill="url(#bark-grad)"/>
+    </g>
+
+    <!-- Copa voluminosa de corazones -->
+    <g id="canopy" class="sway-crown"></g>
+  </svg>
+</div>
+
+<!-- Audio directo -->
+<audio id="bg-audio" loop preload="auto" src="https://files.catbox.moe/y6zgvq.mp3"></audio>
+
+<script>
+// --- PALETA DE ACUARELA PARA LA COPA ---
+const heartColors = [
+  '#2b070b', '#4c0f16', '#6b141d', '#8e1724', 
+  '#ba181b', '#d92534', '#e5383b', '#ea5463', 
+  '#f07185', '#f792a4', '#f9b3c1', '#fad2dc', '#eec2ce'
+];
+
+// --- GENERACIÓN DE LA COPA CON VOLUMEN ---
+const canopy = document.getElementById('canopy');
+
+function generateVolumetricCanopy() {
+  canopy.innerHTML = '';
+  const totalLeaves = 500; 
+
+  for (let i = 0; i < totalLeaves; i++) {
+    const t = Math.random() * Math.PI * 2;
+    const r = Math.pow(Math.random(), 0.52);
+
+    const hx = 16 * Math.pow(Math.sin(t), 3);
+    const hy = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+
+    const scaleFactor = 11.5 * r;
+    const posX = 250 + hx * scaleFactor + (Math.random() - 0.5) * 22;
+    const posY = 185 + hy * scaleFactor + (Math.random() - 0.5) * 22;
+
+    const leafScale = 0.5 + Math.random() * 0.88;
+    const rotation = (Math.random() - 0.5) * 70;
+    
+    let color;
+    if (r < 0.42 && Math.random() > 0.3) {
+      color = heartColors[Math.floor(Math.random() * 4)];
+    } else if (r > 0.7) {
+      color = heartColors[5 + Math.floor(Math.random() * (heartColors.length - 5))];
+    } else {
+      color = heartColors[Math.floor(Math.random() * heartColors.length)];
+    }
+
+    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#h-leaf');
+    use.setAttribute('fill', color);
+    use.setAttribute('opacity', (0.75 + Math.random() * 0.25).toFixed(2));
+    use.setAttribute('transform', `translate(${posX - 12 * leafScale}, ${posY - 12 * leafScale}) rotate(${rotation} 12 12) scale(${leafScale})`);
+
+    canopy.appendChild(use);
+  }
+}
+
+generateVolumetricCanopy();
+
+// --- CORAZONES CAYENDO CONTINUAMENTE ---
+const floatingContainer = document.getElementById('floating-objects');
+
+function spawnFallingHeart() {
+  const heart = document.createElement('div');
+  heart.className = 'falling-heart';
+  
+  const size = 11 + Math.random() * 18;
+  const color = heartColors[Math.floor(Math.random() * heartColors.length)];
+  const duration = 5200 + Math.random() * 4200;
+  
+  const isMobile = window.innerWidth <= 768;
+  const startX = isMobile 
+    ? (window.innerWidth * 0.1 + Math.random() * (window.innerWidth * 0.8))
+    : (window.innerWidth * 0.45 + Math.random() * (window.innerWidth * 0.5));
+    
+  const startY = isMobile 
+    ? (window.innerHeight * 0.35 + Math.random() * 100) 
+    : (window.innerHeight * 0.12 + Math.random() * 140);
+
+  heart.innerHTML = `
+    <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>
+  `;
+
+  heart.style.left = `${startX}px`;
+  heart.style.top = `${startY}px`;
+
+  floatingContainer.appendChild(heart);
+
+  const driftX = (Math.random() - 0.5) * 190;
+  const rotateStart = (Math.random() - 0.5) * 50;
+  const rotateEnd = rotateStart + (Math.random() > 0.5 ? 100 : -100);
+
+  const anim = heart.animate([
+    { transform: `translate3d(0, 0, 0) rotate(${rotateStart}deg)`, opacity: 0.95 },
+    { transform: `translate3d(${driftX}px, ${window.innerHeight - startY + 40}px, 0) rotate(${rotateEnd}deg)`, opacity: 0 }
+  ], {
+    duration: duration,
+    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+  });
+
+  anim.onfinish = () => heart.remove();
+}
+
+setInterval(spawnFallingHeart, 260);
+
+// --- FRASES Y EFECTO MÁQUINA DE ESCRIBIR AUTOMÁTICO ---
+const messages = [
+  `Si me dieran a elegir entre tu sonrisa y no ver el sol, la luna o las estrellas, lo aceptaría porque tendría lo mejor de todas: tu sonrisa.`,
+  `Eres el día de mis noches vacías, el abrigo de mis noches más frías y el querer que necesito en mi vida, de por vida.`,
+  `Al recordar tu nombre, me nace una sonrisa, al escucharte mi corazón vibra y al verte todos mis sentidos se estremecen.`,
+  `El día es más bonito cuando menciono tu nombre.`,
+  `Eres la melodía que alegra mis días y la luz que ilumina mis noches.`,
+  `Eres el sueño del que no quiero despertar y la razón por la que quiero continuar sin descanzar.`,
+  `Eres la chispa que enciende mi alma, la brisa que acaricia mi corazón y un motivo hermoso para continuar.`,
+];
+
+let currentMessageIndex = 0;
+let typewriterTimeout = null;
+let autoAdvanceTimeout = null;
+const textDisplay = document.getElementById('text-display');
+const nextBtn = document.getElementById('next-btn');
+
+function typeMessage(text, charIndex = 0) {
+  if (charIndex === 0) {
+    textDisplay.textContent = '';
+  }
+  
+  if (charIndex < text.length) {
+    textDisplay.textContent += text.charAt(charIndex);
+    typewriterTimeout = setTimeout(() => {
+      typeMessage(text, charIndex + 1);
+    }, 35);
+  } else {
+    autoAdvanceTimeout = setTimeout(() => {
+      nextMessage();
+    }, 5500);
+  }
+}
+
+function nextMessage() {
+  clearTimeout(typewriterTimeout);
+  clearTimeout(autoAdvanceTimeout);
+  currentMessageIndex = (currentMessageIndex + 1) % messages.length;
+  typeMessage(messages[currentMessageIndex]);
+}
+
+nextBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  nextMessage();
+});
+
+typeMessage(messages[currentMessageIndex]);
+
+// --- REPRODUCCIÓN AUTOMÁTICA DEL AUDIO AL INICIAR ---
+const bgAudio = document.getElementById('bg-audio');
+const startOverlay = document.getElementById('start-overlay');
+
+function playAudio() {
+  bgAudio.volume = 0.65;
+  bgAudio.play().catch((e) => {
+    console.log("Audio en espera de interacción:", e);
+  });
+}
+
+function startExperience() {
+  playAudio();
+  startOverlay.style.opacity = '0';
+  setTimeout(() => {
+    startOverlay.style.display = 'none';
+  }, 800);
+}
+
+startOverlay.addEventListener('click', startExperience);
+startOverlay.addEventListener('touchstart', startExperience, { passive: true });
+</script>
+</body>
+</html>
